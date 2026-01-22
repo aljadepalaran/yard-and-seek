@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const HIDDEN_KEY = "yard-and-seek.visible";
+const VisibilityManager = require('./visibilityManager');
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -7,8 +8,10 @@ const HIDDEN_KEY = "yard-and-seek.visible";
 function activate(context) {
 	const hideCommand = vscode.commands.registerCommand('yard-and-seek.hide', async () => {
 		const visible = context.globalState.get(HIDDEN_KEY, false);
+		// HIDE docstrings
 		if(visible){
 			await context.globalState.update(HIDDEN_KEY, false);
+			await VisibilityManager.hideYardDocstrings();
 			vscode.window.showInformationMessage('YARD docstrings have been hidden.');
 			return;
 		}
@@ -17,11 +20,13 @@ function activate(context) {
 
 	const showCommand = vscode.commands.registerCommand('yard-and-seek.show', async () => {
 		const visible = context.globalState.get(HIDDEN_KEY, false);
+		// SHOW docstrings
 		if(visible){
 			vscode.window.showErrorMessage('YARD docstrings are already visible.');
 			return;
 		}
 		await context.globalState.update(HIDDEN_KEY, true);
+		await VisibilityManager.showYardDocstrings();
 		vscode.window.showInformationMessage('YARD docstrings have been shown.');
 	});
 
