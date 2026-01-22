@@ -1,43 +1,49 @@
 const vscode = require('vscode');
 const HIDDEN_KEY = "yard-and-seek.visible";
+const YARDParser = require('./yardParser');
+
+// Create a decoration type for YARD tags
+const hiddenYardStrings = vscode.window.createTextEditorDecorationType({
+    color: '#FF5733',
+    fontStyle: 'italic'
+});
+const visibleYardStrings = vscode.window.createTextEditorDecorationType({
+    color: '#1eff00',
+    fontStyle: 'italic'
+});
 
 class VisibilityManager {
+    // Used when navigating between files and we dont want to lose state
     static async execute(context) {
         const visible = await context.globalState.get(HIDDEN_KEY, false);
 
-        // Should be visible
         if (visible) {
             await this.showYardDocstrings();
         } else {
-            // Should be hidden
             await this.hideYardDocstrings();
         }
     }
 
     static async showYardDocstrings() {
+        // Fetch open editor
         const editor = vscode.window.activeTextEditor;
-        const document = editor.document;
 
-        await editor.edit(editBuilder => {
-            const fullRange = new vscode.Range(
-                document.positionAt(0),
-                document.positionAt(document.getText().length)
-            );
-            editBuilder.replace(fullRange, 'DOCSTRINGS ARE SHOWN\nDOCSTRINGS ARE SHOWN\nDOCSTRINGS ARE SHOWN\nDOCSTRINGS ARE SHOWN');
-        });
+        // Get ranges of YARD tags
+        const ranges = new YARDParser().parseDocument(editor.document);
+        
+        editor.setDecorations(hiddenYardStrings, []);
+        editor.setDecorations(visibleYardStrings, ranges);
     }
 
     static async hideYardDocstrings() {
+        // Fetch open editor
         const editor = vscode.window.activeTextEditor;
-        const document = editor.document;
 
-        await editor.edit(editBuilder => {
-            const fullRange = new vscode.Range(
-                document.positionAt(0),
-                document.positionAt(document.getText().length)
-            );
-            editBuilder.replace(fullRange, 'DOCSTRINGS ARE HIDDEN\nDOCSTRINGS ARE HIDDEN\nDOCSTRINGS ARE HIDDEN\nDOCSTRINGS ARE HIDDEN');
-        });
+        // Get ranges of YARD tags
+        const ranges = new YARDParser().parseDocument(editor.document);
+        
+        editor.setDecorations(hiddenYardStrings, []);
+        editor.setDecorations(hiddenYardStrings, ranges);
     }
 }
 

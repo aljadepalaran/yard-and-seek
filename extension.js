@@ -20,9 +20,7 @@ function activate(context) {
 
 	const showCommand = vscode.commands.registerCommand('yard-and-seek.show', async () => {
 		const visible = context.globalState.get(VISIBLE_KEY, false);
-		const currentEditor = vscode.window.activeTextEditor;
 
-		// SHOW docstrings
 		if(visible){
 			vscode.window.showErrorMessage('YARD docstrings are already visible.');
 			return;
@@ -36,7 +34,6 @@ function activate(context) {
 	// What about when the file is changed but not switched?
 	const changeActiveEditorListener = vscode.window.onDidChangeActiveTextEditor((document) => {
 		VisibilityManager.execute(context);
-        vscode.window.showInformationMessage('You changed the active editor.');
     });
 
 	context.subscriptions.push(hideCommand);
