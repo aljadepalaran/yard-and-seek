@@ -33,6 +33,7 @@ class VisibilityManager {
         
         editor.setDecorations(hiddenYardStrings, []);
         editor.setDecorations(visibleYardStrings, ranges);
+        vscode.window.showInformationMessage('YARD docstrings have been shown.');
     }
 
     static async hideYardDocstrings() {
@@ -44,6 +45,7 @@ class VisibilityManager {
         
         editor.setDecorations(hiddenYardStrings, []);
         editor.setDecorations(hiddenYardStrings, ranges);
+        vscode.window.showInformationMessage('YARD docstrings have been hidden.');
     }
 }
 

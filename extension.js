@@ -8,11 +8,10 @@ const VisibilityManager = require('./visibilityManager');
 function activate(context) {
 	const hideCommand = vscode.commands.registerCommand('yard-and-seek.hide', async () => {
 		const visible = context.globalState.get(VISIBLE_KEY, false);
-		// HIDE docstrings
+
 		if(visible){
 			await VisibilityManager.hideYardDocstrings();
-			await context.globalState.update(VISIBLE_KEY, false);
-			vscode.window.showInformationMessage('YARD docstrings have been hidden.');
+			set_state(context, 'hidden');
 			return;
 		}
 		vscode.window.showErrorMessage('YARD docstrings are already hidden.');
@@ -26,8 +25,7 @@ function activate(context) {
 			return;
 		}
 		await VisibilityManager.showYardDocstrings();
-		await context.globalState.update(VISIBLE_KEY, true);
-		vscode.window.showInformationMessage('YARD docstrings have been shown.');
+		set_state(context, 'visible');
 	});
 
 	// Handles changing files (includes opening new files)
@@ -43,6 +41,12 @@ function activate(context) {
 }
 
 function deactivate() {}
+
+function set_state(context, stateString){
+	const state = stateString === 'hidden' ? false : true;
+
+	context.globalState.update(VISIBLE_KEY, state);
+}
 
 module.exports = {
 	activate,

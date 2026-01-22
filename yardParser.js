@@ -20,6 +20,7 @@ class YARDParser {
             // Get the line number
             const startPos = document.lineAt(document.positionAt(match.index).line).range.start;
             const endPos = document.lineAt(document.positionAt(match.index).line).range.end;
+
             ranges.push(new vscode.Range(startPos, endPos));
         }
 
