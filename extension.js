@@ -1,33 +1,37 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
-
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+const HIDDEN_KEY = "yard-and-seek.visible";
 
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "yard-and-seek" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('yard-and-seek.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from YARD and Seek!');
+	const hideCommand = vscode.commands.registerCommand('yard-and-seek.hide', async () => {
+		const visible = context.globalState.get(HIDDEN_KEY, false);
+		if(visible){
+			await context.globalState.update(HIDDEN_KEY, false);
+			vscode.window.showInformationMessage('YARD docstrings have been hidden.');
+			return;
+		}
+		vscode.window.showErrorMessage('YARD docstrings are already hidden.');
 	});
 
-	context.subscriptions.push(disposable);
+	const showCommand = vscode.commands.registerCommand('yard-and-seek.show', async () => {
+		const visible = context.globalState.get(HIDDEN_KEY, false);
+		if(visible){
+			vscode.window.showErrorMessage('YARD docstrings are already visible.');
+			return;
+		}
+		await context.globalState.update(HIDDEN_KEY, true);
+		vscode.window.showInformationMessage('YARD docstrings have been shown.');
+	});
+
+	context.subscriptions.push(hideCommand);
+	context.subscriptions.push(showCommand);
+	vscode.window.showInformationMessage('YARD and Seek loaded.');
+	// create subscription to hook into file open
+	// subscription will run a service that will determine whether to hide or show docstrings
 }
 
-// This method is called when your extension is deactivated
 function deactivate() {}
 
 module.exports = {

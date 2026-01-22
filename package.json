@@ -9,12 +9,18 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "*"
+  ],
   "main": "./extension.js",
   "contributes": {
     "commands": [{
-      "command": "yard-and-seek.helloWorld",
-      "title": "Hello World"
+      "command": "yard-and-seek.hide",
+      "title": "Hide YARD Docstrings"
+    },
+    {
+      "command": "yard-and-seek.show",
+      "title": "Show YARD Docstrings"
     }]
   },
   "scripts": {
