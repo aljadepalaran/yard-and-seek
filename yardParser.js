@@ -8,18 +8,18 @@ class YARDParser {
     /**
      * Return ranges for entire lines containing YARD tags
      * instead of just the tag itself.
-     * @param {vscode.TextDocument} doc 
+     * @param {vscode.TextDocument} document 
      * @returns {vscode.Range[]}
      */
-    parseDocument(doc) {
+    parseDocument(document) {
         const ranges = [];
-        const text = doc.getText();
+        const text = document.getText();
         let match;
 
         while ((match = this.YARD_TAG_REGEX.exec(text))) {
             // Get the line number
-            const startPos = doc.lineAt(doc.positionAt(match.index).line).range.start;
-            const endPos = doc.lineAt(doc.positionAt(match.index).line).range.end;
+            const startPos = document.lineAt(document.positionAt(match.index).line).range.start;
+            const endPos = document.lineAt(document.positionAt(match.index).line).range.end;
             ranges.push(new vscode.Range(startPos, endPos));
         }
 
@@ -29,18 +29,19 @@ class YARDParser {
     /**
      * Return ranges for entire YARD comment blocks
      * Consecutive lines starting with # are grouped
-     * @param {vscode.TextDocument} doc 
+     * @param {vscode.TextDocument} document 
      * @returns {vscode.Range[]}
      */
-    parseBlocks(doc) {
+    parseBlocks(document) {
         const ranges = [];
-        const lineCount = doc.lineCount;
+        const lineCount = document.lineCount;
 
         let blockStart = null;
         let blockEnd = null;
 
-        for (let i = 0; i < lineCount; i++) {
-            const line = doc.lineAt(i);
+        for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
+            const line = document.lineAt(lineIndex);
+
             if (line.text.trim().startsWith('#')) {
                 if (!blockStart) blockStart = line.range.start;
                 blockEnd = line.range.end;
