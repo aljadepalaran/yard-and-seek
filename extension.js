@@ -1,5 +1,5 @@
 const vscode = require('vscode');
-const HIDDEN_KEY = "yard-and-seek.visible";
+const VISIBLE_KEY = "yard-and-seek.visible";
 const VisibilityManager = require('./visibilityManager');
 
 /**
@@ -7,11 +7,11 @@ const VisibilityManager = require('./visibilityManager');
  */
 function activate(context) {
 	const hideCommand = vscode.commands.registerCommand('yard-and-seek.hide', async () => {
-		const visible = context.globalState.get(HIDDEN_KEY, false);
+		const visible = context.globalState.get(VISIBLE_KEY, false);
 		// HIDE docstrings
 		if(visible){
-			await context.globalState.update(HIDDEN_KEY, false);
 			await VisibilityManager.hideYardDocstrings();
+			await context.globalState.update(VISIBLE_KEY, false);
 			vscode.window.showInformationMessage('YARD docstrings have been hidden.');
 			return;
 		}
@@ -19,22 +19,30 @@ function activate(context) {
 	});
 
 	const showCommand = vscode.commands.registerCommand('yard-and-seek.show', async () => {
-		const visible = context.globalState.get(HIDDEN_KEY, false);
+		const visible = context.globalState.get(VISIBLE_KEY, false);
+		const currentEditor = vscode.window.activeTextEditor;
+
 		// SHOW docstrings
 		if(visible){
 			vscode.window.showErrorMessage('YARD docstrings are already visible.');
 			return;
 		}
-		await context.globalState.update(HIDDEN_KEY, true);
 		await VisibilityManager.showYardDocstrings();
+		await context.globalState.update(VISIBLE_KEY, true);
 		vscode.window.showInformationMessage('YARD docstrings have been shown.');
 	});
 
+	// Handles changing files (includes opening new files)
+	// What about when the file is changed but not switched?
+	const changeActiveEditorListener = vscode.window.onDidChangeActiveTextEditor((document) => {
+		VisibilityManager.execute(context);
+        vscode.window.showInformationMessage('You changed the active editor.');
+    });
+
 	context.subscriptions.push(hideCommand);
 	context.subscriptions.push(showCommand);
+	context.subscriptions.push(changeActiveEditorListener);
 	vscode.window.showInformationMessage('YARD and Seek loaded.');
-	// create subscription to hook into file open
-	// subscription will run a service that will determine whether to hide or show docstrings
 }
 
 function deactivate() {}
